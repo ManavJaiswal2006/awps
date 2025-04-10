@@ -43,7 +43,7 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          rfid: formData.rfidTag, // ✅ Correct field name
+          rfid: formData.rfidTag,
         }),
       })
 
