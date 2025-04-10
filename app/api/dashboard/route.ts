@@ -7,14 +7,14 @@ import connectDB from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-
     const session = await getServerSession(authOptions);
     const email = session?.user?.email;
 
     if (!email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    await connectDB();
 
     const user = await User.findOne({ email });
     if (!user) {

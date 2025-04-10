@@ -1,42 +1,47 @@
-// ✅ File: app/wallet/page.tsx
+"use client";
 
-"use client"
-
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { toast } from "sonner"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 type Transaction = {
-  id: string
-  amount: number
-  type: "credit" | "debit"
-  createdAt: string
-}
+  amount: number;
+  type: "credit" | "debit";
+  time: string;
+};
 
 export default function WalletPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [amount, setAmount] = useState("")
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [amount, setAmount] = useState("");
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await fetch("/api/wallet")
-        const data = await res.json()
-        setTransactions(data.transactions || [])
+        const res = await fetch("/api/wallet");
+        const data = await res.json();
+        setTransactions(data.history || []);
       } catch (error) {
-        console.error("Wallet fetch error:", error)
+        console.error("Wallet fetch error:", error);
       }
-    }
+    };
 
-    fetchTransactions()
-  }, [])
+    fetchTransactions();
+  }, []);
 
   const handleAddFunds = async () => {
     if (!amount || isNaN(Number(amount))) {
-      toast.error("Please enter a valid amount")
-      return
+      toast.error("Please enter a valid amount");
+      return;
     }
 
     try {
@@ -46,27 +51,27 @@ export default function WalletPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ amount: parseFloat(amount) }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        console.error("Add Funds API Error:", data)
-        throw new Error(data?.error || "Failed to add funds")
+        console.error("Add Funds API Error:", data);
+        throw new Error(data?.error || "Failed to add funds");
       }
 
-      toast.success("Funds added successfully")
-      setTransactions([data.transaction, ...transactions])
-      setAmount("")
+      toast.success("Funds added successfully");
+      setTransactions([data.transaction, ...transactions]);
+      setAmount("");
     } catch (error: any) {
-      console.error("Frontend Add Funds Error:", error)
-      toast.error(error.message)
+      console.error("Frontend Add Funds Error:", error);
+      toast.error(error.message);
     }
-  }
+  };
 
   const balance = transactions.reduce((acc, t) => {
-    return t.type === "credit" ? acc + t.amount : acc - t.amount
-  }, 0)
+    return t.type === "credit" ? acc + t.amount : acc - t.amount;
+  }, 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -92,9 +97,11 @@ export default function WalletPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
+          {transactions.map((transaction, i) => (
+            <TableRow key={i}>
+              <TableCell>
+                {format(new Date(transaction.time), "PPpp")}
+              </TableCell>
               <TableCell>{transaction.type}</TableCell>
               <TableCell>₹{transaction.amount}</TableCell>
             </TableRow>
@@ -102,5 +109,5 @@ export default function WalletPage() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

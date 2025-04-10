@@ -14,6 +14,7 @@ import {
   ParkingCircle,
   RefreshCcw,
 } from "lucide-react";
+import { format } from "date-fns";
 
 interface DashboardData {
   name: string;
@@ -205,7 +206,7 @@ export default function DashboardPage() {
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 {data.activeParkingSession
-                  ? data.activeParkingSession
+                  ? "Parked since " + format(new Date(data.activeParkingSession), "PPpp")
                   : "No active session"}
               </p>
             </CardContent>

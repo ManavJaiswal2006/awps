@@ -21,7 +21,12 @@ const parkingEventSchema = new mongoose.Schema(
 
 const transactionSchema = new mongoose.Schema(
   {
-    amountAdded: {
+    type: {
+      type: String,
+      enum: ["credit", "debit"],
+      required: true,
+    },
+    amount: {
       type: Number,
       required: true,
     },

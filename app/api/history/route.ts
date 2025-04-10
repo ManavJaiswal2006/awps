@@ -19,5 +19,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ history: user.parkingHistory || [] });
+  return NextResponse.json({
+    history: user.parkingHistory || [],
+    rfid: user.rfid,
+  });
 }
