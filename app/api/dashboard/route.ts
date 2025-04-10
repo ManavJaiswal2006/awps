@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
       totalSessions: Math.floor(user.parkingHistory.length / 2),
       availableSlots,
       activeParkingSession,
+      name: user.name,
     });
   } catch (err) {
     console.error("Dashboard API Error:", err);

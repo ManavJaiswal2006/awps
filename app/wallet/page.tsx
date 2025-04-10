@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Loader2, RefreshCcw } from "lucide-react";
 
 type Transaction = {
   amount: number;
@@ -23,22 +24,26 @@ type Transaction = {
 export default function WalletPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [amount, setAmount] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const fetchTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/wallet");
+      const data = await res.json();
+      setTransactions(data.history || []);
+    } catch (error) {
+      console.error("Wallet fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const res = await fetch("/api/wallet");
-        const data = await res.json();
-        setTransactions(data.history || []);
-      } catch (error) {
-        console.error("Wallet fetch error:", error);
-      }
-    };
-
     fetchTransactions();
   }, []);
 
   const handleAddFunds = async () => {
+    setIsLoading(true);
     if (!amount || isNaN(Number(amount))) {
       toast.error("Please enter a valid amount");
       return;
@@ -66,6 +71,8 @@ export default function WalletPage() {
     } catch (error: any) {
       console.error("Frontend Add Funds Error:", error);
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +83,16 @@ export default function WalletPage() {
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold">Wallet</h1>
-      <p className="text-lg">Balance: ₹{balance}</p>
+      <div className="w-full flex justify-between items-center">
+        <p className="text-lg">Balance: ₹{balance}</p>
+        <button
+          onClick={fetchTransactions}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          <RefreshCcw className="h-4 w-4" />
+          Refresh
+        </button>
+      </div>
 
       <div className="flex gap-4">
         <Input
@@ -97,15 +113,23 @@ export default function WalletPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction, i) => (
-            <TableRow key={i}>
-              <TableCell>
-                {format(new Date(transaction.time), "PPpp")}
-              </TableCell>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell>₹{transaction.amount}</TableCell>
-            </TableRow>
-          ))}
+          {!isLoading ? (
+            <>
+              {transactions.map((transaction, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    {format(new Date(transaction.time), "PPpp")}
+                  </TableCell>
+                  <TableCell>{transaction.type}</TableCell>
+                  <TableCell>₹{transaction.amount}</TableCell>
+                </TableRow>
+              ))}
+            </>
+          ) : (
+            <div className="w-full m-auto flex items-center justify-center min-h-[100px] ">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          )}
         </TableBody>
       </Table>
     </div>
