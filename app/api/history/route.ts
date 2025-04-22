@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    history: user.parkingHistory || [],
+    history: user.parkingHistory.reverse() || [],
     rfid: user.rfid,
   });
 }

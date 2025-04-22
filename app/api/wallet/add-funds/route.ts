@@ -1,5 +1,4 @@
 import { connectDB } from "@/lib/mongodb";
-import { Transaction } from "@/lib/db/models/transaction";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -24,11 +23,11 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const transaction = new Transaction({
+    const transaction = {
       type: "credit",
       amount,
-      time: new Date(),
-    });
+      time: Date.now(),
+    };
     user.transactionHistory.push(transaction);
     user.balance += amount;
     await user.save();

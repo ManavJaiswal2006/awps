@@ -24,6 +24,7 @@ type Transaction = {
 export default function WalletPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [amount, setAmount] = useState("");
+  const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const fetchTransactions = async () => {
     setIsLoading(true);
@@ -31,6 +32,7 @@ export default function WalletPage() {
       const res = await fetch("/api/wallet");
       const data = await res.json();
       setTransactions(data.history || []);
+      setBalance(data.balance || 0);
     } catch (error) {
       console.error("Wallet fetch error:", error);
     } finally {
@@ -75,10 +77,6 @@ export default function WalletPage() {
       setIsLoading(false);
     }
   };
-
-  const balance = transactions.reduce((acc, t) => {
-    return t.type === "credit" ? acc + t.amount : acc - t.amount;
-  }, 0);
 
   return (
     <div className="p-6 space-y-6">

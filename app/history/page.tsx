@@ -22,7 +22,6 @@ export default function HistoryPage() {
       if (!res.ok) throw new Error("Failed to fetch");
 
       const json = await res.json();
-      console.log(json.history);
       setHistory(json.history || []);
       setRfid(json.rfid || null);
     } catch (err) {

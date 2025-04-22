@@ -1,4 +1,3 @@
-
 import { connectDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -22,6 +21,7 @@ export const GET = async () => {
 
     return NextResponse.json({
       history: user.transactionHistory.reverse() || [],
+      balance: user.balance || 0,
       rfid: user.rfid,
     });
   } catch (err) {

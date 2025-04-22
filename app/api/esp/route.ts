@@ -7,6 +7,7 @@ const chargePerHour = 1; // Change this to your desired rate
 export const POST = async (req: NextRequest) => {
   try {
     const { rfid } = await req.json();
+    console.log("rfid from espp == >>  ", rfid);
 
     if (!rfid) {
       return NextResponse.json(
@@ -22,7 +23,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (user.parkingHistory.at(-1).type == "entry") {
+    if (user?.parkingHistory.at(-1)?.type == "entry") {
       user.activeParking = false;
       const timeSpent = Math.floor(
         (Date.now() - user.parkingHistory.at(-1).time) / 1000
@@ -43,12 +44,10 @@ export const POST = async (req: NextRequest) => {
       user.balance -= amount;
 
       await user.save();
+      return NextResponse.json("EXIT_GRANTED", { status: 200 });
     } else {
       if (user.balance < 50) {
-        return NextResponse.json(
-          { error: "Insufficient balance" },
-          { status: 402 }
-        );
+        return NextResponse.json("Insufficient balance", { status: 402 });
       }
       user.activeParking = true;
       user.parkingHistory.push({
@@ -66,12 +65,9 @@ export const POST = async (req: NextRequest) => {
       user.balance -= 15;
 
       await user.save();
-    }
 
-    return NextResponse.json(
-      { message: "Parking status updated successfully", user },
-      { status: 200 }
-    );
+      return NextResponse.json("ENTRY_GRANTED", { status: 200 });
+    }
   } catch (err: any) {
     console.error("Esp api error => ", err);
     return NextResponse.json(
